@@ -13,14 +13,6 @@ from sklearn.cross_validation import KFold
 from sklearn.grid_search import ParameterSampler
 from multiprocessing import Pool
 
-from randomforest_general import *
-from dataloader import *
-from featureloader import *
-from trigger_percent_change import *
-
-
-
-
 def parallel_search_rf(X_data, y_data, ls_features, n_iter):
         
     
@@ -57,15 +49,21 @@ def randomized_search_rf(X_data, y_data, ls_features, params):
     precision = []
     recall = []
 
-    #randomforest function state to restrict printing of extra metrics
-    print_state = False 
-    
     for train_index, test_index in kf:
         X_train, X_test = X_data.ix[train_index], X_data.ix[test_index]
         y_train, y_test = y_data.ix[train_index], y_data.ix[test_index]
-        Rf, test_prediction, prediction_recall, correct_pos_rate, error_matrix = random_forest_generalized(X_train, X_test, y_train, y_test, ls_features, criterion, n_estimators, max_depth, max_features, min_samples_leaf, min_samples_split, bootstrap, print_state)
         
-        #Collect all precision and custom recall stats     
+        #Example with a custom random forest function
+        #Substitute any function with outputs to the desired 
+        Rf, test_prediction, prediction_recall, correct_pos_rate, error_matrix = random_forest_generalized(X_train, X_test, 
+                                                                                                           y_train, y_test, 
+                                                                                                           ls_features, criterion, 
+                                                                                                           n_estimators, max_depth, 
+                                                                                                           max_features, min_samples_leaf, 
+                                                                                                           min_samples_split, bootstrap, 
+                                                                                                           print_state)
+        
+        #Collect precision and custom recall stats     
         precision.append(correct_pos_rate)
         recall.append(prediction_recall)
 
@@ -74,7 +72,8 @@ def randomized_search_rf(X_data, y_data, ls_features, params):
     ave_recall = np.mean(recall)
     randomizedsearch_scores = (ave_precision, ave_recall, params)
     return randomizedsearch_scores
-    
+
+#Pool needs to be run as a script. - 
 if __name__ == '__main__':
     search_params = parallelSearch_RF(X_data, y_data, ls_features, 20)
     
